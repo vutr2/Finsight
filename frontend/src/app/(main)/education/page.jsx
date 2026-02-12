@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Card from "@/components/ui/Card";
-import { glossaryTerms, lessons } from "@/lib/mock-data";
+import { useEducation } from "@/lib/hooks";
+import { glossaryTerms as fallbackGlossary, lessons as fallbackLessons } from "@/lib/mock-data";
 import { BookOpen, GraduationCap, Search, ChevronDown, ChevronUp } from "lucide-react";
 
 function GlossaryItem({ term }) {
@@ -55,6 +56,10 @@ function LessonCard({ lesson }) {
 export default function EducationPage() {
   const [tab, setTab] = useState("glossary");
   const [search, setSearch] = useState("");
+  const { data: eduData } = useEducation();
+
+  const glossaryTerms = eduData?.glossary || fallbackGlossary;
+  const lessons = eduData?.lessons || fallbackLessons;
 
   const filteredTerms = glossaryTerms.filter(
     (t) =>
@@ -70,7 +75,7 @@ export default function EducationPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Hoc tap</h1>
           <p className="text-sm text-muted">Kien thuc dau tu cho nguoi moi bat dau</p>
@@ -113,7 +118,7 @@ export default function EducationPage() {
 
       {/* Content */}
       {tab === "glossary" ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredTerms.length > 0 ? (
             filteredTerms.map((term) => <GlossaryItem key={term.term} term={term} />)
           ) : (
@@ -121,7 +126,7 @@ export default function EducationPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredLessons.length > 0 ? (
             filteredLessons.map((lesson) => <LessonCard key={lesson.id} lesson={lesson} />)
           ) : (

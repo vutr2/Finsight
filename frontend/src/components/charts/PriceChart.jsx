@@ -27,18 +27,18 @@ export default function PriceChart({ data }) {
       <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
           </linearGradient>
         </defs>
         <XAxis
           dataKey="date"
-          tick={{ fill: "#6b7280", fontSize: 11 }}
+          tick={{ fill: "var(--muted)", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "#6b7280", fontSize: 11 }}
+          tick={{ fill: "var(--muted)", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
@@ -48,7 +48,7 @@ export default function PriceChart({ data }) {
         <Area
           type="monotone"
           dataKey="close"
-          stroke="#10b981"
+          stroke="var(--accent)"
           strokeWidth={2}
           fill="url(#priceGradient)"
         />

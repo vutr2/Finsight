@@ -19,7 +19,7 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Lich su</h1>
           <p className="text-sm text-muted">Hoat dong gan day cua ban</p>

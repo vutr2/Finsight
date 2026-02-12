@@ -1,14 +1,14 @@
 "use client";
 
-import { Home, BarChart3, ArrowLeftRight, Clock, User } from "lucide-react";
+import { Home, BarChart3, GraduationCap, CreditCard, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navItems = [
+const tabs = [
   { href: "/", icon: Home, label: "Trang chủ" },
   { href: "/analysis", icon: BarChart3, label: "Phân tích" },
-  { href: "/education", icon: ArrowLeftRight, label: "Học tập" },
-  { href: "/history", icon: Clock, label: "Lịch sử" },
+  { href: "/education", icon: GraduationCap, label: "Học tập" },
+  { href: "/pricing", icon: CreditCard, label: "Pro" },
   { href: "/profile", icon: User, label: "Cá nhân" },
 ];
 
@@ -16,24 +16,22 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-card-border bg-card-bg/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
-        {navItems.map((item) => {
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-card-border bg-card-bg/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-around px-1 pt-1.5 pb-1">
+        {tabs.map((tab) => {
           const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
+            pathname === tab.href ||
+            (tab.href !== "/" && pathname.startsWith(tab.href));
           return (
             <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center gap-1 rounded-xl px-3 py-1.5 text-xs transition-colors ${
-                isActive
-                  ? "bg-accent text-white"
-                  : "text-muted hover:text-foreground"
+              key={tab.href}
+              href={tab.href}
+              className={`flex flex-1 flex-col items-center gap-0.5 py-1 text-[10px] font-medium transition-colors ${
+                isActive ? "text-accent" : "text-muted"
               }`}
             >
-              <item.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className="font-medium">{item.label}</span>
+              <tab.icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
+              <span>{tab.label}</span>
             </Link>
           );
         })}

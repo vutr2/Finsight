@@ -46,7 +46,7 @@ export default function HomePage() {
           Chỉ số chính
         </h2>
         {marketLoading ? (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="animate-pulse">
                 <div className="h-3 w-16 rounded bg-card-border" />
@@ -57,7 +57,7 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <IndexCard label="VN-Index" {...market.vnIndex} />
               <IndexCard label="HNX-Index" {...market.hnxIndex} />
               <IndexCard label="UPCOM" {...market.upcom} />
@@ -77,7 +77,7 @@ export default function HomePage() {
       </section>
 
       {/* Two Column: Top Movers + News */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Top Movers */}
         <section>
           <div className="mb-3 flex items-center justify-between">

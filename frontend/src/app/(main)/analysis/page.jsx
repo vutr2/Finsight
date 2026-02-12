@@ -1,13 +1,14 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import SearchBar from "@/components/ui/SearchBar";
 import Card from "@/components/ui/Card";
 import PriceChart from "@/components/charts/PriceChart";
-import { useStock } from "@/lib/hooks";
-import { stockDetail as fallbackStock, priceHistory as fallbackHistory, glossaryTerms, topMovers } from "@/lib/mock-data";
-import { TrendingUp, TrendingDown, Info, BookOpen, ArrowLeft, Loader2 } from "lucide-react";
+import { useStock, useMarket, useEducation } from "@/lib/hooks";
+import { useSubscription } from "@/lib/useSubscription";
+import { stockDetail as fallbackStock, priceHistory as fallbackHistory, glossaryTerms as fallbackGlossary, topMovers as fallbackMovers } from "@/lib/mock-data";
+import { TrendingUp, TrendingDown, Info, BookOpen, ArrowLeft, Loader2, Sparkles, Lock } from "lucide-react";
 import Link from "next/link";
 
 function formatPrice(price) {
@@ -37,6 +38,35 @@ function AnalysisContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
   const { data: stockData, loading } = useStock(query);
+  const { data: marketData } = useMarket();
+  const { data: eduData } = useEducation("glossary");
+  const { isPro, isAuthenticated } = useSubscription();
+  const [aiReport, setAiReport] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
+
+  const movers = marketData?.topMovers || fallbackMovers;
+  const glossary = eduData?.glossary || fallbackGlossary;
+
+  async function handleAiAnalysis() {
+    setAiLoading(true);
+    setAiError(null);
+    setAiReport(null);
+    try {
+      const res = await fetch("/api/ai-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol: query }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Loi khong xac dinh");
+      setAiReport(data.report);
+    } catch (err) {
+      setAiError(err.message);
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   if (!query) {
     return (
@@ -51,7 +81,7 @@ function AnalysisContent() {
             Co phieu pho bien
           </h2>
           <div className="flex flex-wrap gap-2">
-            {topMovers.map((s) => (
+            {movers.map((s) => (
               <Link
                 key={s.symbol}
                 href={`/analysis?q=${s.symbol}`}
@@ -81,11 +111,11 @@ function AnalysisContent() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Link href="/analysis" className="flex h-9 w-9 items-center justify-center rounded-lg border border-card-border text-muted hover:text-foreground hover:border-foreground/20 transition-colors">
           <ArrowLeft size={18} />
         </Link>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{stock.symbol}</h1>
             <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${isUp ? "bg-success/15 text-success" : "bg-danger/15 text-danger"}`}>
@@ -96,7 +126,7 @@ function AnalysisContent() {
         </div>
         <div className="text-right">
           <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold">{formatPrice(stock.price)}</span>
+            <span className="text-2xl sm:text-3xl font-bold">{formatPrice(stock.price)}</span>
             <span className="text-sm text-muted pb-1">VND</span>
           </div>
           <div className="mt-0.5 flex items-center justify-end gap-1">
@@ -110,9 +140,9 @@ function AnalysisContent() {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Chart + Technical */}
-        <div className="col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Chart */}
           <Card>
             <div className="mb-3 flex items-center justify-between">
@@ -138,7 +168,7 @@ function AnalysisContent() {
               <span className="rounded-full bg-info/15 px-2 py-0.5 text-xs text-info">Giao duc</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* RSI */}
               <div className="rounded-xl border border-card-border p-4">
                 <div className="flex items-center justify-between">
@@ -196,6 +226,86 @@ function AnalysisContent() {
               </p>
             </div>
           </Card>
+
+          {/* AI Analysis */}
+          <Card>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-accent" />
+                <h2 className="font-semibold">Phan tich AI</h2>
+                <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs text-accent">Giao duc</span>
+                {!isPro && (
+                  <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs text-warning flex items-center gap-1">
+                    <Lock size={10} />
+                    Pro
+                  </span>
+                )}
+              </div>
+              {isPro ? (
+                <button
+                  onClick={handleAiAnalysis}
+                  disabled={aiLoading}
+                  className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {aiLoading ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Dang phan tich...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={14} />
+                      Hoi AI
+                    </>
+                  )}
+                </button>
+              ) : (
+                <Link
+                  href="/pricing"
+                  className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 transition-colors"
+                >
+                  <Lock size={14} />
+                  Nang cap Pro
+                </Link>
+              )}
+            </div>
+
+            {isPro ? (
+              <>
+                {aiError && (
+                  <div className="rounded-lg bg-danger/10 border border-danger/20 p-3 text-sm text-danger">
+                    {aiError}
+                  </div>
+                )}
+
+                {aiReport ? (
+                  <div className="prose prose-sm max-w-none">
+                    <div className="rounded-xl bg-card-border/20 p-4 text-sm leading-relaxed whitespace-pre-wrap">
+                      {aiReport}
+                    </div>
+                  </div>
+                ) : !aiLoading && !aiError ? (
+                  <p className="text-sm text-muted">
+                    Bam &quot;Hoi AI&quot; de AI phan tich cac chi so ky thuat va giai thich y nghia cua chung cho ban.
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <div className="rounded-xl bg-card-border/20 p-4 text-center">
+                <Sparkles size={24} className="mx-auto text-accent mb-2" />
+                <p className="text-sm font-medium">Mo khoa Phan tich AI</p>
+                <p className="text-xs text-muted mt-1">
+                  Nang cap len Pro de AI giai thich chi tiet cac chi bao ky thuat, giup ban hieu sau hon ve co phieu.
+                </p>
+                <Link
+                  href="/pricing"
+                  className="mt-3 inline-block rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 transition-colors"
+                >
+                  Chi 59,000 VND/thang
+                </Link>
+              </div>
+            )}
+          </Card>
         </div>
 
         {/* Right: Metrics + Glossary */}
@@ -220,7 +330,7 @@ function AnalysisContent() {
               <BookOpen size={14} className="text-accent" />
               <h2 className="font-semibold">Thuat ngu lien quan</h2>
             </div>
-            {glossaryTerms.slice(0, 3).map((term) => (
+            {glossary.slice(0, 3).map((term) => (
               <div key={term.term} className="border-b border-card-border py-2.5 last:border-0">
                 <p className="text-sm font-semibold text-accent">{term.term}</p>
                 <p className="mt-1 text-xs text-muted leading-relaxed">{term.definition}</p>

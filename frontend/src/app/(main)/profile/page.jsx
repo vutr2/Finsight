@@ -2,14 +2,17 @@
 
 import { useDescope, useUser, useSession } from "@descope/nextjs-sdk/client";
 import { useRouter } from "next/navigation";
+import { useSubscription } from "@/lib/useSubscription";
 import Card from "@/components/ui/Card";
-import { User, Bell, Moon, HelpCircle, Shield, ExternalLink, LogOut } from "lucide-react";
+import { User, Bell, Moon, HelpCircle, Shield, ExternalLink, LogOut, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const { user } = useUser();
   const { isAuthenticated } = useSession();
   const sdk = useDescope();
   const router = useRouter();
+  const { isPro } = useSubscription();
 
   async function handleLogout() {
     await sdk.logout();
@@ -19,7 +22,7 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl space-y-6">
       {/* Profile Header */}
-      <div className="flex items-center gap-5">
+      <div className="flex flex-wrap items-center gap-5">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent text-white">
           <User size={28} />
         </div>
@@ -51,7 +54,36 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      {/* Subscription Status */}
+      {isAuthenticated && (
+        <Card className={isPro ? "border-accent/30 bg-accent/5" : ""}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${isPro ? "bg-accent/15 text-accent" : "bg-card-border/50 text-muted"}`}>
+                <Sparkles size={18} />
+              </div>
+              <div>
+                <p className="font-medium">
+                  {isPro ? "Finsight Pro" : "Goi mien phi"}
+                </p>
+                <p className="text-sm text-muted">
+                  {isPro ? "Dang su dung — bao gom phan tich AI" : "Nang cap de mo khoa phan tich AI"}
+                </p>
+              </div>
+            </div>
+            {!isPro && (
+              <Link
+                href="/pricing"
+                className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 transition-colors"
+              >
+                Nang cap Pro
+              </Link>
+            )}
+          </div>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* Settings */}
         <section>
           <h2 className="mb-3 text-sm font-semibold text-muted uppercase tracking-wider">
