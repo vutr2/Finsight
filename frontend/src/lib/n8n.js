@@ -1,52 +1,46 @@
 /**
- * n8n Webhook Client
+ * n8n Webhook Client - 1 Workflow duy nhất
  *
- * Gọi tới các n8n workflow webhooks.
- * Mỗi workflow trong n8n cần có một Webhook node làm trigger
- * với path tương ứng (VD: /market-summary, /stock-analysis, ...).
+ * Chỉ cần 1 workflow trong n8n với 1 Webhook node.
+ * Phân biệt request bằng query param "action":
+ *   ?action=market-summary
+ *   ?action=stock-analysis&symbol=VCB
+ *   ?action=news&limit=10
+ *   ?action=education&type=glossary
  *
  * Cách setup trong n8n:
- * 1. Tạo workflow mới
- * 2. Thêm Webhook node → chọn method GET hoặc POST
- * 3. Copy webhook URL path và set vào biến env tương ứng
- * 4. Nối tiếp các node xử lý (HTTP Request, Code, AI Agent, ...)
+ * 1. Tạo 1 workflow duy nhất
+ * 2. Thêm Webhook node (GET) với path: /finsight
+ * 3. Thêm Switch node → đọc query.action để phân nhánh:
+ *    - "market-summary" → nhánh fetch VN-Index, HNX, top movers
+ *    - "stock-analysis" → nhánh fetch data cổ phiếu + tính RSI/MACD
+ *    - "news"           → nhánh fetch tin tức + sentiment
+ *    - "education"      → nhánh trả glossary/lessons
+ * 4. Mỗi nhánh kết thúc bằng Respond to Webhook node trả JSON
  * 5. Activate workflow
  */
 
 const N8N_BASE_URL = process.env.N8N_WEBHOOK_BASE_URL || "";
+const WEBHOOK_PATH = "/finsight";
 
 /**
- * Gọi n8n webhook
- * @param {string} path - Webhook path (VD: "/market-summary")
- * @param {object} options - Fetch options
- * @param {object} options.params - Query parameters
- * @param {object} options.body - POST body
- * @param {string} options.method - HTTP method (default: GET)
+ * Gọi n8n webhook với action cụ thể
+ * @param {string} action - Tên action (VD: "market-summary", "stock-analysis")
+ * @param {object} params - Query params bổ sung (VD: { symbol: "VCB" })
  */
-export async function callN8n(path, options = {}) {
-  const { params, body, method = "GET" } = options;
+export async function callN8n(action, params = {}) {
+  const url = new URL(`${N8N_BASE_URL}${WEBHOOK_PATH}`);
+  url.searchParams.set("action", action);
 
-  const url = new URL(`${N8N_BASE_URL}${path}`);
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        url.searchParams.set(key, value);
-      }
-    });
-  }
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, String(value));
+    }
+  });
 
-  const fetchOptions = {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  if (body && method !== "GET") {
-    fetchOptions.body = JSON.stringify(body);
-  }
-
-  const res = await fetch(url.toString(), fetchOptions);
+  const res = await fetch(url.toString(), {
+    headers: { "Content-Type": "application/json" },
+  });
 
   if (!res.ok) {
     throw new Error(`n8n webhook error: ${res.status} ${res.statusText}`);
@@ -55,14 +49,10 @@ export async function callN8n(path, options = {}) {
   return res.json();
 }
 
-/**
- * Webhook paths - Cập nhật theo workflow n8n của bạn
- * Mỗi path tương ứng với một Webhook node trong n8n
- */
-export const WEBHOOKS = {
-  MARKET_SUMMARY: "/market-summary",
-  STOCK_ANALYSIS: "/stock-analysis",
-  NEWS: "/news",
-  EDUCATION: "/education",
-  SENTIMENT: "/sentiment",
+/** Các action tương ứng với nhánh Switch trong n8n */
+export const ACTIONS = {
+  MARKET_SUMMARY: "market-summary",
+  STOCK_ANALYSIS: "stock-analysis",
+  NEWS: "news",
+  EDUCATION: "education",
 };

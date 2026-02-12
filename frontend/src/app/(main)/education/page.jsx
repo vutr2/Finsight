@@ -17,11 +17,11 @@ function GlossaryItem({ term }) {
         {open ? <ChevronUp size={16} className="text-muted" /> : <ChevronDown size={16} className="text-muted" />}
       </div>
       {open && (
-        <div className="mt-2 space-y-1.5">
-          <p className="text-xs text-muted leading-relaxed">{term.definition}</p>
+        <div className="mt-2 space-y-2">
+          <p className="text-sm text-muted leading-relaxed">{term.definition}</p>
           {term.example && (
-            <p className="text-xs text-foreground/70 leading-relaxed rounded-lg bg-background p-2">
-              💡 {term.example}
+            <p className="text-sm text-foreground/70 leading-relaxed rounded-lg bg-card-border/30 p-3">
+              {term.example}
             </p>
           )}
         </div>
@@ -39,18 +39,14 @@ function LessonCard({ lesson }) {
 
   return (
     <Card className="hover:border-accent/30 transition-colors cursor-pointer">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1">
-          <p className="text-sm font-semibold leading-snug">{lesson.title}</p>
-          <p className="mt-1 text-xs text-muted leading-relaxed">{lesson.description}</p>
-          <div className="mt-2 flex items-center gap-2">
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${levelColors[lesson.level]}`}>
-              {lesson.level}
-            </span>
-            <span className="text-[10px] text-muted">{lesson.category}</span>
-            <span className="text-[10px] text-muted">• {lesson.duration}</span>
-          </div>
-        </div>
+      <p className="font-semibold leading-snug">{lesson.title}</p>
+      <p className="mt-1 text-sm text-muted leading-relaxed">{lesson.description}</p>
+      <div className="mt-3 flex items-center gap-2">
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${levelColors[lesson.level]}`}>
+          {lesson.level}
+        </span>
+        <span className="text-xs text-muted">{lesson.category}</span>
+        <span className="text-xs text-muted">{lesson.duration}</span>
       </div>
     </Card>
   );
@@ -73,61 +69,63 @@ export default function EducationPage() {
   );
 
   return (
-    <div className="space-y-5 px-4 pt-6">
-      <div>
-        <h1 className="text-xl font-bold">Học tập</h1>
-        <p className="text-sm text-muted">Kiến thức đầu tư cho người mới bắt đầu</p>
+    <div className="space-y-6">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Hoc tap</h1>
+          <p className="text-sm text-muted">Kien thuc dau tu cho nguoi moi bat dau</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex rounded-xl bg-card-bg p-1">
+          <button
+            onClick={() => setTab("glossary")}
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              tab === "glossary" ? "bg-accent text-white" : "text-muted"
+            }`}
+          >
+            <BookOpen size={14} />
+            Thuat ngu
+          </button>
+          <button
+            onClick={() => setTab("lessons")}
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              tab === "lessons" ? "bg-accent text-white" : "text-muted"
+            }`}
+          >
+            <GraduationCap size={14} />
+            Bai hoc
+          </button>
+        </div>
       </div>
 
       {/* Search */}
-      <div className="relative">
+      <div className="relative max-w-md">
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm thuật ngữ hoặc bài học..."
-          className="w-full rounded-xl border border-card-border bg-card-bg py-3 pl-10 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+          placeholder="Tim thuat ngu hoac bai hoc..."
+          className="w-full rounded-xl border border-card-border bg-card-bg py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
         />
-      </div>
-
-      {/* Tabs */}
-      <div className="flex rounded-xl bg-card-bg p-1">
-        <button
-          onClick={() => setTab("glossary")}
-          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-colors ${
-            tab === "glossary" ? "bg-accent text-white" : "text-muted"
-          }`}
-        >
-          <BookOpen size={14} />
-          Thuật ngữ
-        </button>
-        <button
-          onClick={() => setTab("lessons")}
-          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-colors ${
-            tab === "lessons" ? "bg-accent text-white" : "text-muted"
-          }`}
-        >
-          <GraduationCap size={14} />
-          Bài học
-        </button>
       </div>
 
       {/* Content */}
       {tab === "glossary" ? (
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-3">
           {filteredTerms.length > 0 ? (
             filteredTerms.map((term) => <GlossaryItem key={term.term} term={term} />)
           ) : (
-            <p className="py-8 text-center text-sm text-muted">Không tìm thấy thuật ngữ phù hợp</p>
+            <p className="col-span-2 py-12 text-center text-sm text-muted">Khong tim thay thuat ngu phu hop</p>
           )}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-3">
           {filteredLessons.length > 0 ? (
             filteredLessons.map((lesson) => <LessonCard key={lesson.id} lesson={lesson} />)
           ) : (
-            <p className="py-8 text-center text-sm text-muted">Không tìm thấy bài học phù hợp</p>
+            <p className="col-span-2 py-12 text-center text-sm text-muted">Khong tim thay bai hoc phu hop</p>
           )}
         </div>
       )}

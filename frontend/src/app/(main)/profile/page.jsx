@@ -17,95 +17,94 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-5 px-4 pt-6">
+    <div className="max-w-2xl space-y-6">
       {/* Profile Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-5">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent text-white">
           <User size={28} />
         </div>
-        <div>
-          <h1 className="text-xl font-bold">
-            {isAuthenticated ? user?.name || "Người dùng" : "Khách"}
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold">
+            {isAuthenticated ? user?.name || "Nguoi dung" : "Khach"}
           </h1>
           <p className="text-sm text-muted">
-            {isAuthenticated ? user?.email || "" : "Đăng nhập để lưu lịch sử"}
+            {isAuthenticated ? user?.email || "" : "Dang nhap de luu lich su"}
           </p>
         </div>
+
+        {/* Auth Button */}
+        {isAuthenticated ? (
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 rounded-lg border border-danger/30 px-4 py-2 text-sm font-medium text-danger hover:bg-danger/10 transition-colors"
+          >
+            <LogOut size={16} />
+            Dang xuat
+          </button>
+        ) : (
+          <button
+            onClick={() => router.push("/login")}
+            className="rounded-lg bg-accent px-5 py-2 text-sm font-bold text-white hover:bg-accent-dim transition-colors"
+          >
+            Dang nhap / Dang ky
+          </button>
+        )}
       </div>
 
-      {/* Auth Button */}
-      {isAuthenticated ? (
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/30 py-3 text-sm font-medium text-danger hover:bg-danger/10 transition-colors"
-        >
-          <LogOut size={16} />
-          Đăng xuất
-        </button>
-      ) : (
-        <button
-          onClick={() => router.push("/login")}
-          className="w-full rounded-xl bg-accent py-3 text-center text-sm font-bold text-white hover:bg-accent-dim transition-colors"
-        >
-          Đăng nhập / Đăng ký
-        </button>
-      )}
+      <div className="grid grid-cols-2 gap-6">
+        {/* Settings */}
+        <section>
+          <h2 className="mb-3 text-sm font-semibold text-muted uppercase tracking-wider">
+            Cai dat
+          </h2>
+          <div className="space-y-2">
+            {[
+              { icon: Bell, label: "Thong bao", desc: "Nhan newsletter hang ngay" },
+              { icon: Moon, label: "Giao dien", desc: "Sang (mac dinh)" },
+            ].map((item) => (
+              <Card key={item.label} className="flex items-center gap-3 hover:border-accent/30 transition-colors cursor-pointer">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <item.icon size={18} />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">{item.label}</p>
+                  <p className="text-sm text-muted">{item.desc}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
 
-      {/* Settings */}
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-muted uppercase tracking-wider">
-          Cài đặt
-        </h2>
-        <div className="space-y-1">
-          {[
-            { icon: Bell, label: "Thông báo", desc: "Nhận newsletter hàng ngày" },
-            { icon: Moon, label: "Giao diện", desc: "Sáng (mặc định)" },
-          ].map((item) => (
-            <Card key={item.label} className="flex items-center gap-3 hover:border-accent/30 transition-colors cursor-pointer">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <item.icon size={16} />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">{item.label}</p>
-                <p className="text-xs text-muted">{item.desc}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Info */}
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-muted uppercase tracking-wider">
-          Thông tin
-        </h2>
-        <div className="space-y-1">
-          {[
-            { icon: HelpCircle, label: "Trợ giúp & FAQ" },
-            { icon: Shield, label: "Chính sách bảo mật" },
-            { icon: ExternalLink, label: "Về Finsight" },
-          ].map((item) => (
-            <Card key={item.label} className="flex items-center gap-3 hover:border-accent/30 transition-colors cursor-pointer">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-card-border/50 text-muted">
-                <item.icon size={16} />
-              </div>
-              <p className="text-sm font-medium">{item.label}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
+        {/* Info */}
+        <section>
+          <h2 className="mb-3 text-sm font-semibold text-muted uppercase tracking-wider">
+            Thong tin
+          </h2>
+          <div className="space-y-2">
+            {[
+              { icon: HelpCircle, label: "Tro giup & FAQ" },
+              { icon: Shield, label: "Chinh sach bao mat" },
+              { icon: ExternalLink, label: "Ve Finsight" },
+            ].map((item) => (
+              <Card key={item.label} className="flex items-center gap-3 hover:border-accent/30 transition-colors cursor-pointer">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card-border/50 text-muted">
+                  <item.icon size={18} />
+                </div>
+                <p className="font-medium">{item.label}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+      </div>
 
       {/* Disclaimer */}
       <Card className="border-warning/20 bg-warning/5">
-        <p className="text-xs text-warning/80 leading-relaxed">
-          ⚠️ Finsight chỉ cung cấp thông tin mang tính giáo dục và tham khảo.
-          Đây không phải lời khuyên tài chính hay đầu tư. Hãy tham khảo chuyên gia
-          và sử dụng các sàn giao dịch uy tín (SSI, VNDIRECT, v.v.) trước khi
-          quyết định đầu tư.
+        <p className="text-sm text-warning/80 leading-relaxed">
+          Finsight chi cung cap thong tin mang tinh giao duc va tham khao. Day khong phai loi khuyen tai chinh hay dau tu. Hay tham khao chuyen gia va su dung cac san giao dich uy tin (SSI, VNDIRECT, v.v.) truoc khi quyet dinh dau tu.
         </p>
       </Card>
 
-      <p className="pb-4 text-center text-xs text-muted">Finsight v0.1.0</p>
+      <p className="text-center text-sm text-muted">Finsight v0.1.0</p>
     </div>
   );
 }
