@@ -1,18 +1,21 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 const NAV = [
   { icon: '▦', label: 'Tổng quan', href: '/dashboard' },
   { icon: '📈', label: 'Cổ phiếu', href: '/dashboard/stock' },
+  { icon: '💼', label: 'Danh mục', href: '/dashboard/portfolio', pro: true },
   { icon: '📰', label: 'Tin tức', href: '/dashboard/news' },
-  { icon: '🤖', label: 'AI Chat', href: '/dashboard/ai-chat' },
+  { icon: '🤖', label: 'AI Chat', href: '/dashboard/ai-chat', pro: true },
   { icon: '🎓', label: 'Học đầu tư', href: '/dashboard/learn' },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isPro } = useAuth();
 
   return (
     <aside
@@ -32,39 +35,26 @@ export default function Sidebar() {
       }}
     >
       {/* Logo */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '4px 8px 20px',
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px 20px' }}>
         <div
           style={{
-            width: '26px',
-            height: '26px',
+            width: '26px', height: '26px',
             borderRadius: 'var(--radius-sm)',
             background: 'linear-gradient(135deg, var(--gold-dim), var(--gold))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '13px',
-            fontWeight: 700,
-            color: 'var(--bg-base)',
-            flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '13px', fontWeight: 700, color: '#fff', flexShrink: 0,
           }}
         >
           F
         </div>
-        <span className="font-display" style={{ fontSize: '16px' }}>
-          Finsight
-        </span>
+        <span className="font-display" style={{ fontSize: '16px' }}>Finsight</span>
       </div>
 
       {/* Nav items */}
       {NAV.map((item) => {
         const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+        const locked = item.pro && !isPro;
+
         return (
           <button
             key={item.href}
@@ -80,10 +70,8 @@ export default function Sidebar() {
               fontSize: '13px',
               fontFamily: 'var(--font-body)',
               background: active ? 'var(--gold-subtle)' : 'transparent',
-              color: active ? 'var(--gold)' : 'var(--text-secondary)',
-              borderLeft: active
-                ? '2px solid var(--gold)'
-                : '2px solid transparent',
+              color: active ? 'var(--gold)' : locked ? 'var(--text-muted)' : 'var(--text-secondary)',
+              borderLeft: active ? '2px solid var(--gold)' : '2px solid transparent',
               transition: 'all 0.15s',
               textAlign: 'left',
               width: '100%',
@@ -98,10 +86,44 @@ export default function Sidebar() {
             <span style={{ fontSize: '15px', width: '18px', textAlign: 'center' }}>
               {item.icon}
             </span>
-            {item.label}
+            <span style={{ flex: 1 }}>{item.label}</span>
+            {item.pro && (
+              <span style={{
+                fontSize: '9px', fontWeight: 800, letterSpacing: '0.08em',
+                padding: '2px 5px', borderRadius: '3px',
+                background: isPro ? 'var(--gold-subtle)' : 'rgba(176,125,42,0.12)',
+                color: 'var(--gold)',
+                flexShrink: 0,
+              }}>
+                PRO
+              </span>
+            )}
           </button>
         );
       })}
+
+      {/* Upgrade prompt for free users */}
+      {!isPro && (
+        <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
+          <button
+            onClick={() => window.location.href = '/dashboard/upgrade'}
+            style={{
+              width: '100%', padding: '10px 12px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--gold-dim)',
+              background: 'var(--gold-subtle)',
+              cursor: 'pointer', textAlign: 'left',
+            }}
+          >
+            <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--gold)', marginBottom: '2px' }}>
+              Nâng cấp Pro
+            </p>
+            <p style={{ fontSize: '10px', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+              Mở khoá AI Chat & Giao dịch
+            </p>
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

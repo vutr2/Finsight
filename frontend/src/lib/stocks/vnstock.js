@@ -200,7 +200,7 @@ export async function getHistory(symbol, days = 365) {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
-    next: { revalidate: 60 },
+    cache: 'no-store',
   });
 
   if (!res.ok) throw new Error(`Vietstock error ${res.status} for ${symbol}`);

@@ -3,28 +3,28 @@
 /* ─── Design Tokens ─────────────────────────────────────── */
 :root {
   /* Backgrounds */
-  --bg-base: #080a0d;
-  --bg-surface: #0f1218;
-  --bg-elevated: #161b24;
-  --bg-border: #1e2535;
+  --bg-base: #f0f2f5;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f7f8fa;
+  --bg-border: #e2e8f0;
 
   /* Gold accent system */
-  --gold: #c9a84c;
-  --gold-light: #e8c97a;
-  --gold-dim: #7a6130;
-  --gold-subtle: rgba(201, 168, 76, 0.08);
+  --gold: #b07d2a;
+  --gold-light: #c99840;
+  --gold-dim: #d4a84b;
+  --gold-subtle: rgba(176, 125, 42, 0.08);
 
   /* Market colors */
-  --bull: #00d68f;
-  --bull-dim: rgba(0, 214, 143, 0.12);
-  --bear: #ff4757;
-  --bear-dim: rgba(255, 71, 87, 0.12);
-  --neutral: #a0aec0;
+  --bull: #0a8f5c;
+  --bull-dim: rgba(10, 143, 92, 0.1);
+  --bear: #d92638;
+  --bear-dim: rgba(217, 38, 56, 0.1);
+  --neutral: #64748b;
 
   /* Typography */
-  --text-primary: #f0f4f8;
-  --text-secondary: #94a3b8;
-  --text-muted: #4a5568;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
 
   /* Fonts */
   --font-display: var(--font-display, 'Playfair Display', Georgia, serif);
@@ -278,7 +278,7 @@ h3 {
 }
 
 .btn-ghost:hover {
-  border-color: var(--gold-dim);
+  border-color: var(--gold);
   color: var(--text-primary);
   background: var(--gold-subtle);
 }
@@ -298,7 +298,7 @@ h3 {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-base);
+  background: var(--bg-elevated);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--bg-border);
@@ -310,6 +310,6 @@ h3 {
 
 /* ─── Selection ──────────────────────────────────────────── */
 ::selection {
-  background: rgba(201, 168, 76, 0.25);
+  background: rgba(176, 125, 42, 0.18);
   color: var(--text-primary);
 }
