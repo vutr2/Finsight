@@ -21,10 +21,11 @@ export async function getUserByDescopeId(descopeId) {
 /**
  * Insert a payment record.
  */
-export async function createPayment({ userid, orderId, planId, amount, cycle }) {
+export async function createPayment({ userid, descopeId, orderId, planId, amount, cycle }) {
   const supabase = getSupabase();
   const { error } = await supabase.from('payments').insert({
-    user_id: userid,
+    user_id: userid ?? null,
+    descope_id: descopeId ?? null,
     order_id: orderId,
     plan_id: planId,
     amount,

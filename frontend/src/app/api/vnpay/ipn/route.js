@@ -57,15 +57,14 @@ async function handleIpn(query) {
   }
 
   // 2. Grant Pro in Descope
-  // userId is encoded in vnp_OrderInfo as "Thanh toan goi {planId}" — but we need userId
-  // userId was stored in the payments table, look it up by orderId
+  // descope_id is stored directly in the payments row
   try {
-    const userId = await getUserIdByOrderId(orderId);
-    if (userId) {
-      await grantPro(userId);
-      console.log('[vnpay/ipn] granted Pro to userId:', userId);
+    const descopeId = await getDescopeIdByOrderId(orderId);
+    if (descopeId) {
+      await grantPro(descopeId);
+      console.log('[vnpay/ipn] granted Pro to:', descopeId);
     } else {
-      console.warn('[vnpay/ipn] no userId found for orderId:', orderId);
+      console.warn('[vnpay/ipn] no descope_id found for orderId:', orderId);
     }
   } catch (err) {
     console.error('[vnpay/ipn] grantPro error:', err.message);
@@ -75,27 +74,17 @@ async function handleIpn(query) {
   return NextResponse.json({ RspCode: '00', Message: 'Confirm Success' });
 }
 
-async function getUserIdByOrderId(orderId) {
+async function getDescopeIdByOrderId(orderId) {
   const { getSupabase } = await import('@/lib/supabase/server');
   const supabase = getSupabase();
 
-  // Step 1: get user_id (UUID) from payment
-  const { data: payment } = await supabase
+  const { data } = await supabase
     .from('payments')
-    .select('user_id')
+    .select('descope_id')
     .eq('order_id', orderId)
     .single();
 
-  if (!payment?.user_id) return null;
-
-  // Step 2: get descope_id from users table
-  const { data: user } = await supabase
-    .from('users')
-    .select('descope_id')
-    .eq('id', payment.user_id)
-    .single();
-
-  return user?.descope_id ?? null;
+  return data?.descope_id ?? null;
 }
 
 async function grantPro(descopeId) {

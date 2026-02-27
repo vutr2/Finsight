@@ -54,16 +54,15 @@ export async function POST(request) {
     });
 
     try {
-      const dbUser = await getUserByDescopeId(userId);
-      if (dbUser) {
-        await createPayment({
-          userid: dbUser.id,
-          orderId,
-          planId,
-          amount,
-          cycle: cycle || 'monthly',
-        });
-      }
+      const dbUser = await getUserByDescopeId(userId).catch(() => null);
+      await createPayment({
+        userid: dbUser?.id ?? null,
+        descopeId: userId,
+        orderId,
+        planId,
+        amount,
+        cycle: cycle || 'monthly',
+      });
     } catch (dbError) {
       console.error('DB save error (non-blocking):', dbError.message);
     }
